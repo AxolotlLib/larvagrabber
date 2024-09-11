@@ -26,9 +26,10 @@ Screen Resolution: [REDACTED] User Agent: [REDACTED] Platform: [REDACTED] Langua
 ## Usage
 
 1. Clone or download the repository.
-2. Update the `index.html` file with your Discord webhook URL by replacing `'DISCORD_WEBHOOK_URL'` in the script section.
-3. Open the `index.html` file in any web browser.
-4. The IP information will be sent to the specified Discord webhook.
+2. Update the `index.html` file with your Discord webhook URL by replacing `'DISCORD_WEBHOOK_URL'` in the script section. (ENCODED IN BASE64)
+3. Update the `index.html` file with your **IPIFY.org api key** by replacing `'https://ipinfo.io/json?token=IPIFYAPIKEY'` in the script section.
+4. Open the `index.html` file in any web browser.
+5. The IP information will be sent to the specified Discord webhook.
 
 ## Disclaimer
 
